@@ -1,6 +1,7 @@
 #pragma once
 #include "Easy_mes.h"
 
+
 using namespace System;
 using namespace System::ComponentModel;
 using namespace System::Collections;
@@ -8,9 +9,18 @@ using namespace System::Windows::Forms;
 using namespace System::Data;
 using namespace System::Drawing;
 
+void MarshalString(String^ s, const char*& os) {
+    using namespace Runtime::InteropServices;
+    os = (const char*)(Marshal::StringToHGlobalAnsi(s)).ToPointer();
+}
 
 bool correct_function(String^ function, int f) // Корректно ли введена функция
 {
+    const char* trf;
+
+    MarshalString(function, trf);
+
+    
     int l1 = 0, l2=0, r1 = 0, r2=0;
     bool arg = 0;
     if (function == "") // если функция пустая
@@ -34,29 +44,42 @@ bool correct_function(String^ function, int f) // Корректно ли введена функция
         MessageBox::Show("Количество открывающихся скобок не равно количеству закрывающихся", "Ошибка в функции");
         return 1;
     }  
-            
+       
+    std::vector<char> values{ 'x','y','z',
+        '0','1','2','3','4','5','6','7','8','9',
+        '+', '-', '*', '/', '^',
+            '(', ')', '[', ']',
+            ',', '.',' ' };
+
+    int s_col = 1;
+
     for (int i = 0; i < function->Length; i++) // проверка все символов функции
     {
+        change:
         switch (function[i])
         {
         case 's': // проверка ввода sin
             if (function[i + 1] != 'i' || function[i + 2] != 'n' || function[i+3] != '(') 
             {
                 MessageBox::Show("Использован неизвестный символ или не указан аргумент в функции №" + char(f), "Ошибка в функции"); 
-                return 1;
+                return true;
             }
  
-            for (int i = 3; i < function->Length; i++) { // проверка аргумента для функции
-                if (function[i] == 'x' || function[i] == 'y' || function[i] == 'z' || isdigit(function[i]))
-                    arg = 1;
+            for (int j = 3*s_col+(s_col-1); j < function->Length; j++) { // проверка аргумента для функции
+                if (!(find(values.begin(), values.end(), trf[j]) != values.end())) {
+                    
+                    if (trf[j] == 's' || trf[j] == 'c' || trf[j] == 't') {
+                        s_col += 1;
+                        i = j;
+                        goto change;
+                    }
+                        
+                    MessageBox::Show("Использован неизвестный символ или не указан аргумент в функции №" + char(f), "Ошибка в функции");
+                    return true;
+                 }                       
             }
-            if (!arg){            
-                MessageBox::Show("Использован неизвестный символ или не указан аргумент в функции №" + char(f), "Ошибка в функции");
-                return 1;
-            }
-
-            arg = 0;
-            i += 3;
+           
+            i = (3*s_col+(s_col-1));
             continue;
             break;
 
@@ -176,7 +199,7 @@ bool correct_function(String^ function, int f) // Корректно ли введена функция
                 function[i] != 'x' &&
                 function[i] != '+' && function[i] != '-' && function[i] != '*' && function[i] != '/' && function[i] != '^' &&
                 function[i] != '(' && function[i] != ')' && function[i] != '[' && function[i] != ']' && function[i] != ',' && function[i] != '.' && function[i] != ' ') {
-                MessageBox::Show("Использован неизвестный символ в функции №" + char(f), "Ошибка в функции");
+                MessageBox::Show("Использован неизвестный символ в функции №" + char(f), "!Ошибка в функции");
                 return 1;
             }
             break;
