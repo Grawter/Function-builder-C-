@@ -1,6 +1,5 @@
 #pragma once
-#include "Easy_mes.h"
-
+#include "Simple_mes.h"
 
 using namespace System;
 using namespace System::ComponentModel;
@@ -14,19 +13,27 @@ void MarshalString(String^ s, const char*& os) {
     os = (const char*)(Marshal::StringToHGlobalAnsi(s)).ToPointer();
 }
 
-bool correct_function(String^ function, int f) // Корректно ли введена функция
+bool function_correct(String^ function, int f) // Корректно ли введена функция
 {
     const char* trf;
 
     MarshalString(function, trf);
 
+    std::vector<char> values{ 'x','y','z',
+        '0','1','2','3','4','5','6','7','8','9',
+        '+', '-', '*', '/', '^',
+            '(', ')', '[', ']',
+            ',', '.',' ' };
+
+    int trigonometr_fun_col = 1;
     
     int l1 = 0, l2=0, r1 = 0, r2=0;
     bool arg = 0;
+    ///////////////////
     if (function == "") // если функция пустая
     {
-        MessageBox::Show("Функция не задана. Задайте функцию", "Ошибка в функции");
-        return 1;
+        MyMess("Функция не задана.Задайте функцию", "Ошибка в функции");
+        return true;
     }
 
     for (int i = 0; i < function->Length; i++) { // подсчёт открывающих и закрывающих скобок 
@@ -41,19 +48,12 @@ bool correct_function(String^ function, int f) // Корректно ли введена функция
     }
 
     if (l1 != r1 || l2 != r2) { // если количество открывающих скобок не равно количеству закрывающих 
-        MessageBox::Show("Количество открывающихся скобок не равно количеству закрывающихся", "Ошибка в функции");
-        return 1;
+        MyMess("Количество открывающихся скобок не равно количеству закрывающихся", "Ошибка в функции");
+        return true;
     }  
-       
-    std::vector<char> values{ 'x','y','z',
-        '0','1','2','3','4','5','6','7','8','9',
-        '+', '-', '*', '/', '^',
-            '(', ')', '[', ']',
-            ',', '.',' ' };
+           
 
-    int s_col = 1;
-
-    for (int i = 0; i < function->Length; i++) // проверка все символов функции
+    for (int i = 0; i < function->Length; i++) // проверка всех символов функции
     {
         change:
         switch (function[i])
@@ -61,69 +61,83 @@ bool correct_function(String^ function, int f) // Корректно ли введена функция
         case 's': // проверка ввода sin
             if (function[i + 1] != 'i' || function[i + 2] != 'n' || function[i+3] != '(') 
             {
-                MessageBox::Show("Использован неизвестный символ или не указан аргумент в функции №" + char(f), "Ошибка в функции"); 
+                MyMess("Использован неизвестный символ в функции №" + char(f));
                 return true;
             }
  
-            for (int j = 3*s_col+(s_col-1); j < function->Length; j++) { // проверка аргумента для функции
+            for (int j = 3*trigonometr_fun_col+(trigonometr_fun_col - 1); j < function->Length; j++) { // проверка аргумента(ов) для функции(ий)
                 if (!(find(values.begin(), values.end(), trf[j]) != values.end())) {
                     
                     if (trf[j] == 's' || trf[j] == 'c' || trf[j] == 't') {
-                        s_col += 1;
+                        trigonometr_fun_col += 1;
                         i = j;
                         goto change;
                     }
-                        
-                    MessageBox::Show("Использован неизвестный символ или не указан аргумент в функции №" + char(f), "Ошибка в функции");
+                    
+                    MyMess("Использован неизвестный символ в аргументе в функции №" + char(f));
                     return true;
                  }                       
             }
            
-            i = (3*s_col+(s_col-1));
+            i = (3* trigonometr_fun_col +(trigonometr_fun_col - 1));
             continue;
             break;
 
-        case 'c': // проверка ввода cos
+        case 'c': // проверка ввода cos или cot
             if ((function[i + 1] != 'o' || function[i + 2] != 's' || function[i + 3] != '('))
             {
-                MessageBox::Show("Использован неизвестный символ в функции №" + char(f), "Ошибка в функции");
-                return 1;
+                if ((function[i + 1] == 'o' || function[i + 2] == 't' || function[i + 3] != '(')) // если это cot
+                    goto here;
+
+                MyMess("Использован неизвестный символ в функции №" + char(f));
+                return true;
             }
 
-            for (int i = 3; i < function->Length; i++) { // проверка аргумента для функции
-                if (function[i] == 'x' || function[i] == 'y' || function[i] == 'z' || isdigit(function[i]))
-                    arg = 1;
-            }
-            if (!arg) {
-                MessageBox::Show("Использован неизвестный символ или не указан аргумент в функции №" + char(f), "Ошибка в функции");
-                return 1;
+        here:
+
+            for (int j = 3 * trigonometr_fun_col + (trigonometr_fun_col - 1); j < function->Length; j++) { // проверка аргумента(ов) для функции(ий)
+                if (!(find(values.begin(), values.end(), trf[j]) != values.end())) {
+
+                    if (trf[j] == 's' || trf[j] == 'c' || trf[j] == 't') {
+                        trigonometr_fun_col += 1;
+                        i = j;
+                        goto change;
+                    }
+
+                    MyMess("Использован неизвестный символ в аргументе в функции №" + char(f));
+                    return true;
+                }
             }
 
-            arg = 0;
-            i += 3;
+            i = (3 * trigonometr_fun_col + (trigonometr_fun_col - 1));
             continue;
             break;
 
         case 't': // проверка ввода tan
             if ((function[i + 1] != 'a' && function[i + 2] != 'n' && function[i + 3] != '('))
             {
-                MessageBox::Show("Использован неизвестный символ в функции №" + char(f), "Ошибка в функции");
-                return 1;
+                MyMess("Использован неизвестный символ в функции №" + char(f));
+                return true;
             }
 
-            for (int i = 3; i < function->Length; i++) { // проверка аргумента для функции
-                if (function[i] == 'x' || function[i] == 'y' || function[i] == 'z' || isdigit(function[i]))
-                    arg = 1;
-            }
-            if (!arg) {
-                MessageBox::Show("Использован неизвестный символ или не указан аргумент в функции №" + char(f), "Ошибка в функции");
-                return 1;
+            for (int j = 3 * trigonometr_fun_col + (trigonometr_fun_col - 1); j < function->Length; j++) { // проверка аргумента(ов) для функции(ий)
+                if (!(find(values.begin(), values.end(), trf[j]) != values.end())) {
+
+                    if (trf[j] == 's' || trf[j] == 'c' || trf[j] == 't') {
+                        trigonometr_fun_col += 1;
+                        i = j;
+                        goto change;
+                    }
+
+                    MyMess("Использован неизвестный символ в аргументе в функции №" + char(f));
+                    return true;
+                }
             }
 
-            arg = 0;
-            i += 3;
+            i = (3 * trigonometr_fun_col + (trigonometr_fun_col - 1));
             continue;
             break;
+
         case 'a': 
             switch (function[i+1])
             {
@@ -195,13 +209,18 @@ bool correct_function(String^ function, int f) // Корректно ли введена функция
         switch (f)
         {
         case 1:
-            if (!isdigit(function[i]) &&
+            if ( !( (find(values.begin(), values.end(), trf[i]) != values.end() ) || trf[i]=='x') ) {
+                MessageBox::Show("Использован неизвестный символ в функции №" + char(f), "!Ошибка в функции");
+                return 1;
+            }
+
+            /*if (!isdigit(function[i]) &&
                 function[i] != 'x' &&
                 function[i] != '+' && function[i] != '-' && function[i] != '*' && function[i] != '/' && function[i] != '^' &&
                 function[i] != '(' && function[i] != ')' && function[i] != '[' && function[i] != ']' && function[i] != ',' && function[i] != '.' && function[i] != ' ') {
                 MessageBox::Show("Использован неизвестный символ в функции №" + char(f), "!Ошибка в функции");
                 return 1;
-            }
+            }*/
             break;
         case 2:
             if (!isdigit(function[i]) &&
@@ -225,7 +244,7 @@ bool correct_function(String^ function, int f) // Корректно ли введена функция
     return 0;
 }
 
-void clear_str(std::string& var_dig, String^& p) // очищаем строки при новом расчёте значения (для 1-ой функции)
+void clear_str(std::string& var_dig, String^& p) // очищаем строки при новом расчёте значения
 {
     if (var_dig[0] == 'x')
         var_dig = "x=";

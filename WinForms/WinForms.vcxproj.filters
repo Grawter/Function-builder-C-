@@ -13,6 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Analisys_data">
+      <UniqueIdentifier>{d1663a41-2953-4c88-8c92-c0390808d6c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Helpers">
+      <UniqueIdentifier>{a2acd685-43b1-4421-ab4d-dcf95e706a18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Func_Builder">
+      <UniqueIdentifier>{a091bed7-0712-4476-a1fb-10006bba13c9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MyForm.cpp">
@@ -23,17 +32,23 @@
     <ClInclude Include="MyForm.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="Parser.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="dop_func.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="Easy_mes.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="Segment_analisys.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Analisys_data</Filter>
+    </ClInclude>
+    <ClInclude Include="Parser.h">
+      <Filter>Analisys_data</Filter>
+    </ClInclude>
+    <ClInclude Include="Simple_mes.h">
+      <Filter>Analisys_data</Filter>
+    </ClInclude>
+    <ClInclude Include="Char_Str_Converter.h">
+      <Filter>Helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="Function_analisys.h">
+      <Filter>Analisys_data</Filter>
+    </ClInclude>
+    <ClInclude Include="Builder.h">
+      <Filter>Func_Builder</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -126,8 +126,10 @@
     <ClCompile Include="MyForm.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dop_func.h" />
-    <ClInclude Include="Easy_mes.h" />
+    <ClInclude Include="Builder.h" />
+    <ClInclude Include="Char_Str_Converter.h" />
+    <ClInclude Include="Function_analisys.h" />
+    <ClInclude Include="Simple_mes.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="MyForm.h">
       <FileType>CppForm</FileType>

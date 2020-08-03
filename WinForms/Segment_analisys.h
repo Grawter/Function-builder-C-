@@ -1,9 +1,6 @@
 #pragma once
 
-//#include <iostream>
-#include "Easy_mes.h"
-
-using namespace System;
+#include "Simple_mes.h"
 using namespace System::Windows::Forms;
 
 // обработка пользовательских данных(Начало-конец интервала, шаг)
