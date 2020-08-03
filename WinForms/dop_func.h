@@ -1,4 +1,5 @@
 #pragma once
+#include "Easy_mes.h"
 
 using namespace System;
 using namespace System::ComponentModel;
@@ -7,51 +8,6 @@ using namespace System::Windows::Forms;
 using namespace System::Data;
 using namespace System::Drawing;
 
-// обработка пользовательских данных(Начало-конец интервала, шаг)
-bool user_data(double& start_digit, double& end_digit, double& step, String^& some_start_digit, String^& some_end_digit, String^& some_step)
-{
-    start_digit = -5;
-    if (some_start_digit != "")
-    {
-        for (int i = 0; i < some_start_digit->Length; i++)
-        {
-            if (isalpha(some_start_digit[i]))
-            {             
-                MessageBox::Show("Некорректно указано начало интервала", "Ошибка");
-                return 1;
-            }
-        }
-        start_digit = Convert::ToDouble(some_start_digit);
-    }
-
-    end_digit = 5;
-    if (some_end_digit != "")
-    {
-        for (int i = 0; i < some_end_digit->Length; i++)
-        {
-            if (isalpha(some_end_digit[i]))
-            {
-                MessageBox::Show("Некорректно указан конец интервала", "Ошибка");
-                return 1;
-            }
-        }
-        end_digit = Convert::ToDouble(some_end_digit);
-    }
-
-    step = 1;
-    if (some_step != "")
-    {
-        for (int i = 0; i < some_step->Length; i++)
-        {
-            if (isalpha(some_step[i]))
-            {
-                MessageBox::Show("Некорректно указан шаг", "Ошибка");
-                return 1;
-            }
-        }
-        step = Convert::ToDouble(some_step);
-    }
-}
 
 bool correct_function(String^ function, int f) // Корректно ли введена функция
 {
