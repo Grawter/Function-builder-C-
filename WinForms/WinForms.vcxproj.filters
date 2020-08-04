@@ -22,6 +22,9 @@
     <Filter Include="Func_Builder">
       <UniqueIdentifier>{a091bed7-0712-4476-a1fb-10006bba13c9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Libs_Namespace">
+      <UniqueIdentifier>{408ca48a-ae1c-4785-ba8a-6ade3bbcfde3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MyForm.cpp">
@@ -49,6 +52,12 @@
     </ClInclude>
     <ClInclude Include="Builder.h">
       <Filter>Func_Builder</Filter>
+    </ClInclude>
+    <ClInclude Include="LibsAndNamespace.h">
+      <Filter>Libs_Namespace</Filter>
+    </ClInclude>
+    <ClInclude Include="Assist_Func.h">
+      <Filter>Helpers</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

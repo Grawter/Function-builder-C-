@@ -1,7 +1,7 @@
 #pragma once
 
+#include "LibsAndNamespace.h"
 #include "Simple_mes.h"
-using namespace System::Windows::Forms;
 
 // обработка пользовательских данных(Начало-конец интервала, шаг)
 bool segment_correct(double& start_digit, double& end_digit, double& step, String^& some_start_digit, String^& some_end_digit, String^& some_step)

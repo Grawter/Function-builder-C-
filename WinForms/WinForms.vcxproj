@@ -126,9 +126,11 @@
     <ClCompile Include="MyForm.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Assist_Func.h" />
     <ClInclude Include="Builder.h" />
     <ClInclude Include="Char_Str_Converter.h" />
     <ClInclude Include="Function_analisys.h" />
+    <ClInclude Include="LibsAndNamespace.h" />
     <ClInclude Include="Simple_mes.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="MyForm.h">

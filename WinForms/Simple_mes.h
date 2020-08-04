@@ -1,6 +1,5 @@
 #pragma once
-using namespace System;
-using namespace System::Windows::Forms;
+#include "LibsAndNamespace.h"
 
 DialogResult MyMess(String^ text, String^ head="Ошибка ввода функции") {
 
