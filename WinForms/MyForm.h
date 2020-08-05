@@ -1,9 +1,9 @@
 ﻿#pragma once
+
 #include "Parser.h"
 #include "Function_analisys.h"
-#include "Char_Str_Converter.h"
 #include "Segment_analisys.h"
-#include "Assist_Func.h"
+#include "Builder.h"
 
 namespace WinForms {
     using namespace System;
@@ -57,7 +57,7 @@ namespace WinForms {
     private: System::Windows::Forms::ListBox^ listBox3;
     private: System::Windows::Forms::ListBox^ listBox4;
     private: System::Windows::Forms::ListBox^ listBox2;
-    private: System::Windows::Forms::ListBox^ listBox1; 
+    private: System::Windows::Forms::ListBox^ listBox1;
     private: System::Windows::Forms::DataVisualization::Charting::Chart^ chart1;
     private: System::Windows::Forms::Label^ label3;
     private: System::Windows::Forms::Label^ label2;
@@ -87,8 +87,6 @@ namespace WinForms {
     private: System::Windows::Forms::ComboBox^ comboBox2;
     private: System::Windows::Forms::Label^ label20;
     private: System::Windows::Forms::CheckBox^ checkBox1;
-
-
 
            /// <summary>
         /// Обязательная переменная конструктора.
@@ -690,7 +688,7 @@ namespace WinForms {
                this->MinimizeBox = false;
                this->Name = L"MyForm";
                this->ShowIcon = false;
-               this->Text = L"Esfunc";
+               this->Text = L"Function builder";
                this->menuStrip1->ResumeLayout(false);
                this->menuStrip1->PerformLayout();
                (cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->chart1))->EndInit();
@@ -778,60 +776,32 @@ namespace WinForms {
 
     private: System::Void выполнитьToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 
-        //section 1:
+        //Функция (1):
         if (comboBox1->SelectedIndex == 0 || comboBox1->SelectedIndex == 1 || comboBox1->SelectedIndex == 2)
         {
-            tokens texpr1, pexpr1; // Токен это отдельная самостоятельная единица в выражении, например, константа, имя переменной или операция.
-            Variables expvars1; // Массив переменны
-            Massives expmasvars1; // Массив массивов под доп нужны (как я понимаю функции и т.д.)
-
-            String^ function1 = textBox1->Text; // Функция     
-            if (function_correct(function1, 1)) // проверка, корректна ли введена функция
-                goto link; // в случае, если введена некорректно
-
-            std::string expr1 = ""; // Формула, в формате СТД строки
-            MarshalStringToString(function1, expr1);
-
-            double start_digit1, end_digit1, step1; // интервал, шаг
-            String^ some_start_digit1 = textBox2->Text; // начало интервала
+            const int number_func1 = 1; // Номер функции
+            String^ function1 = textBox1->Text; // Функция 
+            String^ some_start_digit1 = textBox2->Text; // начало интервала 
             String^ some_end_digit1 = textBox3->Text; // конец интервала
-            String^ some_step1 = textBox4->Text; // указанный шаг (если таковой имеется)
+            String^ some_step1 = textBox4->Text; // указанный шаг 
 
-            if (segment_correct(start_digit1, end_digit1, step1, some_start_digit1, some_end_digit1, some_step1)) //проверка, корректно ли введены доп. условия 
-                goto link; // в случае, если введена некорректно
+            Builder First_Function(function1, number_func1); // создание объекта строителя для первой функции
 
-            std::string var_dig1 = "x="; // переменное значение x
-            String^ p1 = ""; // вспомогательная переменная для присваивания значения x
-            double result1 = 0;
-            /////
+            if (First_Function.test_function(function1)) // проверяется корректно ли введена функция
+                goto link; // в случае, если введена некорректна
 
+            if (First_Function.test_segment(some_start_digit1, some_end_digit1, some_step1)) // проверется корректно ли введены доп. условия
+                goto link; // в случае, если введена некорректна
+
+            std::vector<std::vector<double>> itog = First_Function.result(); // получаем результат в виде двух векторов со значениями Х и У
             chart1->Series["Function(1)"]->Points->Clear(); // Очистка графика 1
-            for (double i = start_digit1; i < end_digit1 + step1; i += step1)
+
+            for (size_t i = 0, j = 0; i < itog[0].size(), j < itog[1].size(); i++, j++)
             {
-                p1 = Convert::ToString(i); // передача х значения
-                for (int i = 0; i < p1->Length; i++)
-                {
-                    var_dig1 += (char)p1[i];
-                }
+                listBox1->Items->Add(Math::Round(itog[0][i], 7)); // выводим точку
+                listBox2->Items->Add(Math::Round(itog[1][j], 7)); // выводим значение функции в точке
 
-                std::string::iterator it1 = find(begin(var_dig1), end(var_dig1), ','); // замена "," на "."  для корректной работы
-                if (it1 != end(var_dig1))
-                {
-                    *it1 = '.';
-                }
-
-                ReadExpressionFromStream(expr1, var_dig1, expvars1, expmasvars1); // считываем функцию
-                CreateTokensFromExpression(expr1, texpr1); // разбиваем на токены
-                CreatePostfixFromTokens(texpr1, pexpr1); // преобразовываем в постфиксную запись
-
-                result1 = ResultExpr(pexpr1, expvars1, expmasvars1); // получем значением в заданной точке
-                listBox1->Items->Add(Math::Round(i, 7)); // выводим точку
-                listBox2->Items->Add(Math::Round(result1, 7)); // выводим значение функции
-
-                chart1->Series["Function(1)"]->Points->AddXY(i, result1); // Строим график
-
-                clear_el(expvars1, expmasvars1, texpr1, pexpr1); // очистка элементов парсера
-                clear_str(var_dig1, p1); // очистка вспомогательных строк
+                chart1->Series["Function(1)"]->Points->AddXY(itog[0][i], itog[1][j]); // Строим график 1
             }
         }
         else
@@ -841,130 +811,74 @@ namespace WinForms {
             return; // выход из события
         }
 
-        //section 2:
+        //Функция (2):
         if (comboBox1->SelectedIndex == 1 || comboBox1->SelectedIndex == 2)
         {
-            tokens texpr2, pexpr2; // Токен это отдельная самостоятельная единица в выражении, например, константа, имя переменной или операция.
-            Variables expvars2; // Массив переменны
-            Massives expmasvars2; // Массив массивов под доп нужны (как я понимаю функции и т.д.)
-
-            String^ function2 = textBox5->Text; // Функция
-            if (function_correct(function2, 2)) // проверка, корректна ли введена функция
-                goto link; // в случае, если введена некорректно
-
-            std::string expr2 = ""; // Формула, в формате СТД строки
-            MarshalStringToString(function2, expr2);
-
-            double start_digit2, end_digit2, step2; // интервал шаг
+            const int number_func2 = 2; // Номер функции
+            String^ function2 = textBox5->Text; // Функция 
             String^ some_start_digit2 = textBox6->Text; // начало интервала
             String^ some_end_digit2 = textBox7->Text; // конец интервала
-            String^ some_step2 = textBox8->Text; // указанный шаг (если таковой имеется)
+            String^ some_step2 = textBox8->Text; // указанный шаг 
 
-            if (segment_correct(start_digit2, end_digit2, step2, some_start_digit2, some_end_digit2, some_step2)) // проверка, корректно ли введены доп. условия 
-                goto link; // в случае, если введена некорректно
+            Builder Second_Function(function2, number_func2); // создание объекта строителя для второй функции
 
-            std::string var_dig2 = "y="; // переменное значение y
-            String^ p2 = ""; // вспомогательная переменная для присваивания значения y
-            double result2 = 0;
-            ////////
+            if (Second_Function.test_function(function2)) //проверяется корректно ли введена функция
+                goto link; // в случае, если введена некорректна
 
+            if (Second_Function.test_segment(some_start_digit2, some_end_digit2, some_step2)) //проверется корректно ли введены доп. условия
+                goto link; // в случае, если введена некорректна
+
+            std::vector<std::vector<double>> itog = Second_Function.result(); // получаем результат в виде двух векторов со значениями Х и У
             chart1->Series["Function(2)"]->Points->Clear(); // Очистка графика 2
-            for (double j = start_digit2; j < end_digit2 + step2; j += step2)
+
+            for (size_t i = 0, j = 0; i < itog[0].size(), j < itog[1].size(); i++, j++)
             {
-                p2 = Convert::ToString(j); // передача y значения
-                for (int i = 0; i < p2->Length; i++)
-                {
-                    var_dig2 += (char)p2[i];
-                }
+                listBox3->Items->Add(Math::Round(itog[0][i], 7)); // выводим точку
+                listBox4->Items->Add(Math::Round(itog[1][j], 7)); // выводим значение функции в точке
 
-                std::string::iterator it2 = find(begin(var_dig2), end(var_dig2), ','); // замена "," на "."  для корректной работы
-                if (it2 != end(var_dig2))
-                {
-                    *it2 = '.';
-                }
-
-                ReadExpressionFromStream(expr2, var_dig2, expvars2, expmasvars2); // считываем функцию
-                CreateTokensFromExpression(expr2, texpr2); // разбиваем на токены
-                CreatePostfixFromTokens(texpr2, pexpr2); // преобразовываем в постфиксную запись
-
-                result2 = ResultExpr(pexpr2, expvars2, expmasvars2); // получем значением в заданной точке
-                listBox3->Items->Add(Math::Round(j, 7)); // выводим точку
-                listBox4->Items->Add(Math::Round(result2, 7)); // выводим значение функции
-
-                chart1->Series["Function(2)"]->Points->AddXY(j, result2); // Строим график
-
-                clear_el(expvars2, expmasvars2, texpr2, pexpr2); // очистка элементов парсера
-                clear_str(var_dig2, p2); // очистка вспомогательных строк
+                chart1->Series["Function(2)"]->Points->AddXY(itog[0][i], itog[1][j]); // Строим график 2
             }
         }
 
-        //section 3
+        //Функция (3):
         if (comboBox1->SelectedIndex == 2)
         {
-            tokens texpr3, pexpr3; // Токен это отдельная самостоятельная единица в выражении, например, константа, имя переменной или операция.
-            Variables expvars3; // Массив переменны
-            Massives expmasvars3; // Массив массивов под доп нужны (как я понимаю функции и т.д.)
-
-            String^ function3 = textBox9->Text; // Функция
-            if (function_correct(function3, 3)) // проверка, корректна ли введена функция
-                goto link; // в случае, если введена некорректно
-
-            std::string expr3 = ""; // Формула, в формате СТД строки
-            MarshalStringToString(function3, expr3);
-
-            double start_digit3, end_digit3, step3; // интервал шаг
+            const int number_func3 = 3; // Номер функции
+            String^ function3 = textBox9->Text; // Функция 
             String^ some_start_digit3 = textBox10->Text; // начало интервала
             String^ some_end_digit3 = textBox11->Text; // конец интервала
-            String^ some_step3 = textBox12->Text; // указанный шаг (если таковой имеется)
+            String^ some_step3 = textBox12->Text; // указанный шаг 
 
-            if (segment_correct(start_digit3, end_digit3, step3, some_start_digit3, some_end_digit3, some_step3)) // проверка, корректно ли введены доп. условия 
-                goto link; // в случае, если введена некорректно
+            Builder Third_Function(function3, number_func3); // создание объекта строителя для второй функции
 
-            std::string var_dig3 = "z="; // переменное значение z
-            String^ p3 = ""; // вспомогательная переменная для присваивания значения z
-            double result3 = 0;
-            ////////
+            if (Third_Function.test_function(function3)) //проверяется корректно ли введена функция
+                goto link; // в случае, если введена некорректна
 
+            if (Third_Function.test_segment(some_start_digit3, some_end_digit3, some_step3)) //проверется корректно ли введены доп. условия
+                goto link; // в случае, если введена некорректна
+
+            std::vector<std::vector<double>> itog = Third_Function.result(); // получаем результат в виде двух векторов со значениями Х и У
             chart1->Series["Function(3)"]->Points->Clear(); // Очистка графика 3
-            for (double l = start_digit3; l < end_digit3 + step3; l += step3)
+
+            for (size_t i = 0, j = 0; i < itog[0].size(), j < itog[1].size(); i++, j++)
             {
-                p3 = Convert::ToString(l); // передача z значения
-                for (int i = 0; i < p3->Length; i++)
-                {
-                    var_dig3 += (char)p3[i];
-                }
+                listBox5->Items->Add(Math::Round(itog[0][i], 7)); // выводим точку
+                listBox6->Items->Add(Math::Round(itog[1][j], 7)); // выводим значение функции в точке
 
-                std::string::iterator it3 = find(begin(var_dig3), end(var_dig3), ','); // замена "," на "."  для корректной работы
-                if (it3 != end(var_dig3))
-                {
-                    *it3 = '.';
-                }
-
-                ReadExpressionFromStream(expr3, var_dig3, expvars3, expmasvars3); // считываем функцию
-                CreateTokensFromExpression(expr3, texpr3); // разбиваем на токены
-                CreatePostfixFromTokens(texpr3, pexpr3); // преобразовываем в постфиксную запись
-
-                result3 = ResultExpr(pexpr3, expvars3, expmasvars3); // получем значением в заданной точке
-                listBox5->Items->Add(Math::Round(l, 7)); // выводим точку
-                listBox6->Items->Add(Math::Round(result3, 7)); // выводим значение функции
-
-                chart1->Series["Function(3)"]->Points->AddXY(l, result3); // Строим график
-
-                clear_el(expvars3, expmasvars3, texpr3, pexpr3); // очистка элементов парсера
-                clear_str(var_dig3, p3); // очистка вспомогательных строк
+                chart1->Series["Function(3)"]->Points->AddXY(itog[0][i], itog[1][j]); // Строим график 3
             }
         }
     }
 
     private: System::Void помощьToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) { // Информация
         MessageBox::Show
-        ("1. Перед работой предварительно выбрать кол-во функций для использования.\n"+
-         "2. Записывать функции(1), (2), (3) соответственно через \"x\",\"y\",\"z\".\n" +
-         "3. Пример ввода в функцию (1):  x^2-3*sin(x+15)+9.\n" +
-         "4. Доступные тригометрические функции sin, cos, tan, cot, asin, acos, atan, acot.\n"+
-         "5. Функции, имеющие разрыв строиться не будут. Появившийся красный крест исчезнет при перезапуске.\n"+
-         "6. Для включение курсора выбрать нужные оси.\n"+
-         "7. При надобности есть возможность увеличения графика, после активации \"Zoom\". Для максимального увеличения подключить курсор.\n", 
+        ("1. Перед работой предварительно выбрать кол-во функций для использования.\n" +
+            "2. Записывать функции(1), (2), (3) соответственно через \"x\",\"y\",\"z\".\n" +
+            "3. Пример ввода в функцию (1):  x^2-3*sin(x+15)+9.\n" +
+            "4. Доступные тригометрические функции sin, cos, tan, cot, asin, acos, atan, acot.\n" +
+            "5. Функции, имеющие разрыв строиться не будут. Появившийся красный крест исчезнет при перезапуске.\n" +
+            "6. Для включение курсора выбрать нужные оси.\n" +
+            "7. При надобности есть возможность увеличения графика, после активации \"Zoom\". Для максимального увеличения подключить курсор.\n",
             "Информация по использованию",
             MessageBoxButtons::OK, MessageBoxIcon::Information);
     }
@@ -972,7 +886,7 @@ namespace WinForms {
     private: System::Void очиститьToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) { // Очистка всего
         textBox1->Text = "";  textBox2->Text = "";  textBox3->Text = "";  textBox4->Text = ""; // очистка текстбоксов
         textBox5->Text = "";  textBox6->Text = "";  textBox7->Text = "";  textBox8->Text = ""; // очистка текстбоксов
-        textBox9->Text = "";  textBox10->Text = "";  textBox11->Text = "";  textBox12->Text = ""; // очистка текстбоксов
+        textBox9->Text = "";  textBox10->Text = ""; textBox11->Text = ""; textBox12->Text = ""; // очистка текстбоксов
 
         listBox1->Items->Clear(); listBox2->Items->Clear(); // очистка листбоксов
         listBox3->Items->Clear(); listBox4->Items->Clear(); // очистка листбоксов
@@ -981,8 +895,8 @@ namespace WinForms {
         chart1->Series["Function(1)"]->Points->Clear(); // Очистка графика 
         chart1->Series["Function(2)"]->Points->Clear(); // Очистка графика 
         chart1->Series["Function(3)"]->Points->Clear(); // Очистка графика 
-        chart1->Refresh(); // Обновление графика. Необязательно.
-        
+        chart1->Refresh(); // Обновление графика. (Необязательно)
+
 
         comboBox1->SelectedIndex = -1; // Очистка комбобокса 
     }
@@ -990,5 +904,5 @@ namespace WinForms {
     private: System::Void завершитьToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) { // Выход
         this->Close();
     }
-};
+    };
 }
